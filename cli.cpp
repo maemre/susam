@@ -82,6 +82,9 @@ void CLI_init() {
         [](int argc) { return argc == 1; },
         []() { exit(0); }
     );
+
+    cout << "Welcome to Simple Storage Manager" << endl
+        << "Type 'help' to get a full list of commands." << endl;
 }
 
 void repl() {
