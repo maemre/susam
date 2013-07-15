@@ -13,6 +13,7 @@ all: main
 
 main: main.o cli.o util.o table.o record.o
 	$(LINKER) $(LFLAGS) main.o cli.o util.o table.o record.o -o main
+	cp main ../bin
 
 util.o: util.cpp util.h
 	$(CC) -c $(CXXFLAGS) util.cpp
@@ -35,5 +36,12 @@ clean:
 distclean: clean
 	rm -f main
 
+cleanstyle:
+	rm -f *.orig
+
+style:
+	astyle --options=astylerc *.cpp *.h 
+
 run: all
+	cd ../bin
 	./main

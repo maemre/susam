@@ -1,0 +1,28 @@
+--style=stroustrup
+
+--indent=spaces=4
+--max-instatement-indent=80
+
+--indent-switches
+--indent-col1-comments
+
+--break-blocks
+
+--pad-oper
+--pad-header
+--unpad-paren
+
+--fill-empty-lines
+
+--align-pointer=name
+--align-reference=name
+
+--break-closing-brackets
+
+# does not work with C++ versions prior to C++11
+--close-templates # makes templates' angle brackets closed, like: vector<vector<int>>
+
+--max-code-length=100 # fair enough, I can see ~200 chars with my screen
+
+--mode=c
+--formatted # display only formatted files' names
