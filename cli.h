@@ -6,7 +6,7 @@
 #include <string>
 
 void menu();
-void create_commands();
+void CLI_init();
 void repl();
 
 struct command_t {

@@ -14,7 +14,7 @@ command_t::command_t(string name_, string usage_, bool (*argc_c)(int), void (*cb
 
 std::unordered_map<std::string, command_t> commands;
 
-void create_commands() {
+void CLI_init() {
     command_t cmd;
 
     // Table operations
