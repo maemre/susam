@@ -6,4 +6,6 @@
 
 std::vector<std::string> split(const std::string &s, char delim, bool skip_empties = true);
 
+#define PAGE_SIZE 1024
+
 #endif
