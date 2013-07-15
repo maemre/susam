@@ -11,8 +11,8 @@ LFLAGS=-lc++
 
 all: main
 
-main: main.o cli.o util.o
-	$(LINKER) $(LFLAGS) main.o cli.o util.o -o main
+main: main.o cli.o util.o table.o record.o
+	$(LINKER) $(LFLAGS) main.o cli.o util.o table.o record.o -o main
 
 util.o: util.cpp util.h
 	$(CC) -c $(CXXFLAGS) util.cpp
@@ -22,6 +22,12 @@ cli.o: cli.cpp cli.h util.h
 
 main.o: main.cpp cli.h
 	$(CC) -c $(CXXFLAGS) main.cpp
+
+table.o: table.cpp table.h
+	$(CC) -c $(CXXFLAGS) table.cpp
+
+record.o: record.cpp record.h table.h
+	$(CC) -c $(CXXFLAGS) record.cpp
 
 clean:
 	rm -fr *.o *.dSYM
