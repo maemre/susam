@@ -16,7 +16,7 @@ struct command_t {
     void (*callback)(void);
     // constructors:
     // the empty constructor
-    command_t(std::string name_="");
+    command_t(std::string name_ = "");
     // use this constructor by default
     command_t(std::string name_, std::string usage_, bool (*argc_c)(int), void (*cb)(void));
 };

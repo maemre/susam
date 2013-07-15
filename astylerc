@@ -22,7 +22,7 @@
 # does not work with C++ versions prior to C++11
 --close-templates # makes templates' angle brackets closed, like: vector<vector<int>>
 
---max-code-length=100 # fair enough, I can see ~200 chars with my screen
+--max-code-length=120 # fair enough, I can see ~200 chars with my screen and some lines contain long strings
 
 --mode=c
 --formatted # display only formatted files' names

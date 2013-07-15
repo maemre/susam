@@ -11,8 +11,8 @@ public:
     void listAllTables();
     Table findTable(const std::string &name);
     bool insertTable(const Table &t);
-    bool deleteTable(const std::string& name);
-
+    bool deleteTable(const std::string &name);
+    
     SystemCatalogue();
     ~SystemCatalogue();
 private:

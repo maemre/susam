@@ -8,7 +8,7 @@
 
 struct Table {
     bool isDeleted;
-    std::vector<std::pair<std::string,int> > fields;
+    std::vector<std::pair<std::string, int>> fields;
     std::string name;
     // Index of primary key
     int pk_index;
@@ -24,6 +24,6 @@ struct Table {
     // Table() // regular constructor
 };
 
-std::ostream & operator << (std::ostream &os, const Table &t);
+std::ostream &operator << (std::ostream &os, const Table &t);
 
 #endif
