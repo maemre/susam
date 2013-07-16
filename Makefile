@@ -8,11 +8,10 @@ CXXFLAGS=-std=c++11 -stdlib=libc++ -Wall -g
 # change this to ld or g++ if you're using GCC
 LINKER=clang++
 LFLAGS=-lc++
+TARGET=main
 
-all: main
-
-main: main.o cli.o util.o table.o record.o
-	$(LINKER) $(LFLAGS) main.o cli.o util.o table.o record.o -o main
+$(TARGET): main.o cli.o util.o table.o record.o
+	$(LINKER) $(LFLAGS) main.o cli.o util.o table.o record.o -o $(TARGET)
 	cp main ../bin
 
 util.o: util.cpp util.h
@@ -34,7 +33,7 @@ clean:
 	rm -fr *.o *.dSYM
 
 distclean: clean
-	rm -f main
+	rm -f $(TARGET)
 
 cleanstyle:
 	rm -f *.orig
