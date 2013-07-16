@@ -1,5 +1,10 @@
+# object and debug files
 *.o
 *.dSYM
+# main executable
 main
+# VIM swap files
 .*.swp
 *~
+# YouCompleteMe config file
+.ycm*
