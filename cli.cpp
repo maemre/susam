@@ -120,7 +120,7 @@ void CLI_init()
         return argc == 1;
     },
     []() {
-        exit(0);
+        exit(EXIT_SUCCESS);
     }
                                        );
                                        
