@@ -15,7 +15,7 @@ all: $(TARGET)
 
 $(TARGET): main.o cli.o util.o table.o record.o syscat.o operations.o
 	$(LINKER) $(LFLAGS) main.o cli.o util.o table.o record.o syscat.o operations.o -o $(TARGET)
-	cp main ../bin
+	cp $(TARGET) ../bin
 
 util.o: util.cpp util.h
 	$(CC) -c $(CXXFLAGS) util.cpp
@@ -44,7 +44,10 @@ clean:
 	rm -fr *.o *.dSYM
 
 distclean: clean
-	rm -f $(TARGET)
+	rm -f $(TARGET) ../bin/$(TARGET)
+
+cleanthemall: distclean
+	rm -f ../bin/*
 
 cleanstyle:
 	rm -f *.orig
@@ -53,5 +56,4 @@ style:
 	astyle --options=astylerc *.cpp *.h 
 
 run: all
-	cd ../bin
-	./main
+	cd ../bin ; ./$(TARGET)
