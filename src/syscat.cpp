@@ -6,15 +6,30 @@
 using namespace std;
 
 SystemCatalogue::SystemCatalogue()
-    : pos_(0), fs("syscat.txt"), linesRead_()
+    : linesRead_(), pos_(0)
 {
+}
+
+void SystemCatalogue::open()
+{
+    fs.open("syscat.txt", fstream::in | fstream::out);
+    
+    if (!fs.is_open()) { // file may not exists, so open in out-only mode to create the file
+        // open in write-only mode to create the file
+        fs.open("syscat.txt", fstream::out);
+        fs.close(); // close the file
+        // try opening file again
+        fs.open("syscat.txt", fstream::in | fstream::out);
+    }
+    
     if (! fs.is_open())
         throw runtime_error("Cannot open system catalogue file");
 }
 
 SystemCatalogue::~SystemCatalogue()
 {
-    fs.close();
+    if (fs.is_open())
+        fs.close();
 }
 
 Table parseLine(string s)
@@ -135,4 +150,7 @@ bool SystemCatalogue::deleteTable(const string &name)
     return false;
 }
 
-
+bool SystemCatalogue::createTable(const Table &t)
+{
+    // TODO : Implement
+}

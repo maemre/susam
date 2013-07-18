@@ -10,11 +10,13 @@ class SystemCatalogue {
 public:
     void listAllTables();
     Table findTable(const std::string &name);
-    bool insertTable(const Table &t);
+    bool createTable(const Table &t);
     bool deleteTable(const std::string &name);
     
     SystemCatalogue();
     ~SystemCatalogue();
+    
+    void open();
 private:
     std::vector<std::string> linesRead_;
     int pos_;
