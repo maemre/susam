@@ -1,11 +1,12 @@
 #include "table.h"
+#include <stdexcept>
 
 using namespace std;
 
 const int &Table::fsize(int index) const
 {
     if (index >= fields.size())
-        throw "Table::fsize: given index is larger than # of fields";
+        throw runtime_error("Table::fsize: given index is larger than # of fields");
         
     return fields[index].second;
 }
@@ -13,7 +14,7 @@ const int &Table::fsize(int index) const
 const string &Table::fname(int index) const
 {
     if (index >= fields.size())
-        throw "Table::fname: given index is larger than # of fields";
+        throw runtime_error("Table::fname: given index is larger than # of fields");
         
     return fields[index].first;
 }
@@ -21,7 +22,7 @@ const string &Table::fname(int index) const
 int &Table::fsize(int index)
 {
     if (index >= fields.size())
-        throw "Table::fsize: given index is larger than # of fields";
+        throw runtime_error("Table::fsize: given index is larger than # of fields");
         
     return fields[index].second;
 }
@@ -29,9 +30,30 @@ int &Table::fsize(int index)
 string &Table::fname(int index)
 {
     if (index >= fields.size())
-        throw "Table::fname: given index is larger than # of fields";
+        throw runtime_error("Table::fname: given index is larger than # of fields");
         
     return fields[index].first;
+}
+
+Table::Table()
+    : isDeleted(true), fields(0), name(""), pk_index(-1)
+{
+}
+
+Table::Table(Table &other)
+    : isDeleted(other.isDeleted),
+      fields(other.fields),
+      name(other.name),
+      pk_index(other.pk_index)
+{
+}
+
+Table::Table(Table &&other)
+    : isDeleted(other.isDeleted),
+      fields(move(other.fields)),
+      name(move(other.name)),
+      pk_index(other.pk_index)
+{
 }
 
 ostream &operator << (ostream &os, const Table &t)
@@ -57,3 +79,20 @@ ostream &operator << (ostream &os, const Table &t)
     return os;
 }
 
+Table &Table::operator = (Table &other)
+{
+    isDeleted = other.isDeleted;
+    fields = other.fields;
+    name = other.name;
+    pk_index = other.pk_index;
+    return *this;
+}
+
+Table &Table::operator = (Table && other)
+{
+    isDeleted = other.isDeleted;
+    fields = move(other.fields);
+    name = move(other.name);
+    pk_index = other.pk_index;
+    return *this;
+}
