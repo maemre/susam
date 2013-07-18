@@ -1,5 +1,6 @@
 #include "cli.h"
 #include "util.h"
+#include "operations.h"
 #include <iostream>
 
 using namespace std;
@@ -47,9 +48,7 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    []() {
-        cout << "list all tables, to be implemented\n";
-    }
+    listAllTables
                               );
                               
     // Record operations
