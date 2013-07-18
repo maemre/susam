@@ -10,7 +10,7 @@ command_t::command_t(string name_)
 {
 }
 
-command_t::command_t(string name_, string usage_, bool (*argc_c)(int), void (*cb)(void))
+command_t::command_t(string name_, string usage_, bool (*argc_c)(int), callback_t cb)
     : name(name_), usage(usage_), argc_check(argc_c), callback(cb)
 {
 }
@@ -28,8 +28,8 @@ void CLI_init()
     [](int argc) {
         return argc >= 4;
     },
-    []() {
-        cout << "create table, to be implemented\n";
+    [](const string &args) {
+        
     }
                          );
     commands["delete-table"] = command_t(
@@ -38,7 +38,7 @@ void CLI_init()
     [](int argc) {
         return argc == 2;
     },
-    []() {
+    [](const string &args) {
         cout << "delete table, to be implemented\n";
     }
                                );
@@ -48,7 +48,9 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    listAllTables
+    [](const string &args) {
+        listAllTables();
+    }
                               );
                               
     // Record operations
@@ -58,7 +60,7 @@ void CLI_init()
     [](int argc) {
         return argc >= 3;
     },
-    []() {
+    [](const string &args) {
         cout << "insert record, to be implemented";
     }
                          );
@@ -68,7 +70,7 @@ void CLI_init()
     [](int argc) {
         return argc == 3;
     }, // argc==3 since primary key cannot contain spaces
-    []() {
+    [](const string &args) {
         cout << "delete record, to be implemented";
     }
                          );
@@ -78,7 +80,7 @@ void CLI_init()
     [](int argc) {
         return argc >= 3;
     },
-    []() {
+    [](const string &args) {
         cout << "update record, to be implemented";
     }
                          );
@@ -88,17 +90,17 @@ void CLI_init()
     [](int argc) {
         return argc == 2;
     },
-    []() {
+    [](const string &args) {
         cout << "list all records in a table, to be implemented";
     }
                        );
-    commands["insert"] = command_t(
+    commands["search"] = command_t(
                              "search",
                              "usage: search [table-name] [operation] [primary-key-value]",
     [](int argc) {
-        return argc == 4;
+        return argc == 4; // primary key value cannot contain spaces
     },
-    []() {
+    [](const string &args) {
         cout << "search records, to be implemented";
     }
                          );
@@ -110,7 +112,9 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    menu
+    [](const string &args) {
+        menu();
+    }
                        );
     commands["quit"] = commands["q"] = command_t(
                                            "quit",
@@ -118,7 +122,7 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    []() {
+    [](const string &args) {
         exit(EXIT_SUCCESS);
     }
                                        );
@@ -141,7 +145,16 @@ void repl()
     for (auto & cmd : commands) {
         if (v[0] == cmd.first) {
             if (cmd.second.argc_check(v.size())) {
-                cmd.second.callback();
+                // Find first space in input line
+                int space;
+                for (space=0; space<input_line.size(); ++space) {
+                    if (input_line[space]==' ') {
+                        ++space; // set i to the character after space
+                        break;
+                    }
+                }
+                string args = input_line.substr(space);
+                cmd.second.callback(input_line);
             }
             else {
                 cout << cmd.second.usage << endl;
