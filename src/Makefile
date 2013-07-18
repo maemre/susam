@@ -10,6 +10,9 @@ LINKER=clang++
 LFLAGS=-lc++
 TARGET=main
 
+# some people and platforms use `make all', so let's use it
+all: $(TARGET)
+
 $(TARGET): main.o cli.o util.o table.o record.o syscat.o operations.o
 	$(LINKER) $(LFLAGS) main.o cli.o util.o table.o record.o syscat.o operations.o -o $(TARGET)
 	cp main ../bin
