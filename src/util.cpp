@@ -28,3 +28,10 @@ std::vector<string> split(const string &s, char delim, bool skip_empties)
     return v;
 }
 
+// trim leading spaces
+void triml(string &str)
+{
+    size_t startpos = str.find_first_not_of(" \t");
+    if( string::npos != startpos )
+        str = move(str.substr(startpos));
+}

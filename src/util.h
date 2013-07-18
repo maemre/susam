@@ -11,4 +11,7 @@ std::vector<std::string> split(const std::string &s, char delim, bool skip_empti
 // A comparator that compares two integers
 typedef bool (*comparator)(int, int);
 
+// Left trim a string in-place
+void triml(std::string &str);
+
 #endif

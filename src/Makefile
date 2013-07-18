@@ -32,18 +32,27 @@ table.o: table.cpp table.h
 record.o: record.cpp record.h table.h
 	$(CC) -c $(CXXFLAGS) record.cpp
 
-syscat.o: syscat.h syscat.cpp table.h
+syscat.o: syscat.h syscat.cpp table.h util.h
 	$(CC) -c $(CXXFLAGS) syscat.cpp
 
 operations.o: operations.h operations.cpp syscat.h
 	$(CC) -c $(CXXFLAGS) operations.cpp
 
+tests: test-dir syscat_test
+	./test-dir/syscat_test
 
+test-dir:
+	mkdir -p test-dir
+
+syscat_test: syscat_test.o table.o syscat.o util.o
+	$(LINKER) $(LFLAGS) syscat_test.o table.o syscat.o util.o -o syscat_test
+	mv syscat_test test-dir/
 
 clean:
 	rm -fr *.o *.dSYM
 
 distclean: clean
+	rm -fr test-dir
 	rm -f $(TARGET) ../bin/$(TARGET)
 
 cleanthemall: distclean

@@ -1,7 +1,10 @@
 #include <iostream>
 #include <stdexcept>
 #include "syscat.h"
+#include "util.h"
 #include <sstream>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 
@@ -12,14 +15,14 @@ SystemCatalogue::SystemCatalogue()
 
 void SystemCatalogue::open()
 {
-    fs.open("syscat.txt", fstream::in | fstream::out);
+    fs.open("syscat.txt", fstream::in | fstream::out | fstream::binary);
     
     if (!fs.is_open()) { // file may not exists, so open in out-only mode to create the file
         // open in write-only mode to create the file
         fs.open("syscat.txt", fstream::out);
         fs.close(); // close the file
         // try opening file again
-        fs.open("syscat.txt", fstream::in | fstream::out);
+        fs.open("syscat.txt", fstream::in | fstream::out | fstream::binary);
     }
     
     if (! fs.is_open())
@@ -39,8 +42,9 @@ Table parseLine(string s)
     int nOfFields;
     Table t;
     line >> deleted;
-    
-    if (deleted == '0') {
+    if (! line) // If stream is not readable, we're done
+        return t;
+    if (deleted == '1') {
         t.isDeleted = true;
         return t;
     }
@@ -48,18 +52,24 @@ Table parseLine(string s)
     line >> t.name; // Table name does not contain spaces, thanks to Goddess
     line >> nOfFields;
     line >> t.pk_index;
-    
-    // Read field names:
+
+    // Read fields:
     for (int i = 0; i < nOfFields; i++) {
         pair<string, int> field;
-        line >> field.first;
+        string temp;
+        // read till next colon (field name)
+        getline(line, field.first, ':');
+        triml(field.first);
+        // read till next comma (field size)
+        getline(line, temp, ',');
+        field.second = atoi(temp.c_str());
+
         t.fields.push_back(field);
+
+        if (! line) // If stream is not readable, we're done
+            return t;
     }
-    
-    // Read field sizes
-    for (auto & field : t.fields)
-        line >> field.second;
-        
+    t.isDeleted = false;
     return t;
 }
 
@@ -68,15 +78,17 @@ void SystemCatalogue::listAllTables()
     string line;
     
     // Go to the beginning of the file
-    fs.seekg(0, fs.beg);
+    fs.seekg(0, ios::beg);
     
     while (getline(fs, line)) {
         Table t = parseLine(line);
+        if (t.isDeleted)
+            continue;
         cout << t << endl;
     }
     
     // Go back to where we left off
-    fs.seekg(pos_, fs.beg);
+    fs.seekg(pos_, ios::beg);
 }
 
 Table SystemCatalogue::findTable(const string &name)
@@ -102,7 +114,7 @@ Table SystemCatalogue::findTable(const string &name)
         if (t.name == name && !t.isDeleted)
             return t;
     }
-    
+    fs.clear();
     return Table();
 }
 
@@ -110,7 +122,7 @@ bool SystemCatalogue::deleteTable(const string &name)
 {
     int p = 0;
     Table t;
-    
+    int i = 0;
     // Use memory cache
     for (auto & line : linesRead_) {
         t = parseLine(line);
@@ -118,12 +130,14 @@ bool SystemCatalogue::deleteTable(const string &name)
         
         if (t.name == name && !t.isDeleted) {
             int pos = fs.tellp();
-            fs.seekp(p);
+            fs.seekp(p, ios::beg);
             fs << '1'; // Set IsDeleted flag to 1 for that table
+            linesRead_[i][0]='1'; // Set that flag also in memory
             fs.sync();
-            fs.seekp(pos); // go back to where you were
+            fs.seekp(pos, ios::beg); // go back to where you were
             return true; // success
         }
+        ++i;
     }
     
     // Do disk IO
@@ -134,10 +148,10 @@ bool SystemCatalogue::deleteTable(const string &name)
         pos_ += line.size() + 1;
         
         if (t.name == name && !t.isDeleted) {
-            fs.seekp(pos_ - line.size() + 1, fs.beg);
+            fs.seekp(pos_ - line.size() + 1, ios::beg);
             fs << '1'; // Set IsDeleted flag to 1 for that table
             fs.sync();
-            fs.seekp(pos_); // go back to where you were
+            fs.seekp(pos_, ios::beg); // go back to where you were
             line[0] = '1'; // Set IsDeleted for that line
             linesRead_.push_back(line);
             return true; // success
@@ -152,5 +166,28 @@ bool SystemCatalogue::deleteTable(const string &name)
 
 bool SystemCatalogue::createTable(const Table &t)
 {
-    // TODO : Implement
+    stringstream ss;
+    string line;
+    Table u=findTable(t.name);
+    if (u.name == t.name) // If there is already a table
+        return false;
+    fs.seekp(0, ios::end);
+    if (t.isDeleted) // A deleted table counts as added
+        return true;
+    char deleted = t.isDeleted ? '1' : '0';
+    ss << deleted
+        << t.name << ' '
+        << t.fields.size() << ' '
+        << t.pk_index << ' '; // fix this
+    
+    // Write field names and sizes, they're comma seperated values
+    for (auto & field : t.fields)
+        ss << field.first << ':' << field.second << ',';
+    ss << endl;
+    line = ss.str();
+    fs << line;
+    fs.flush(); // Guarantee that we've written everything.
+    fs.seekg(pos_, ios::beg);
+    fs.seekp(pos_, ios::beg);
+    return true;
 }
