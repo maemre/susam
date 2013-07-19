@@ -8,3 +8,5 @@ main
 *~
 # YouCompleteMe config file
 .ycm*
+# Test files
+src/test-dir/
