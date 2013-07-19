@@ -32,6 +32,22 @@ std::vector<string> split(const string &s, char delim, bool skip_empties)
 void triml(string &str)
 {
     size_t startpos = str.find_first_not_of(" \t");
-    if( string::npos != startpos )
-        str = move(str.substr(startpos));
+    
+    if (string::npos != startpos)
+        str = str.substr(startpos);
+}
+
+// trim following spaces
+void trimr(string &str)
+{
+    size_t endpos = str.find_last_not_of(" \t");
+    
+    if (string::npos != endpos)
+        str = str.substr(0, endpos+1);
+}
+
+void trim(string &str)
+{
+    trimr(str);
+    triml(str);
 }
