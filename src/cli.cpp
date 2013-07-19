@@ -2,6 +2,9 @@
 #include "util.h"
 #include "operations.h"
 #include <iostream>
+#include <sstream>
+#include <utility>
+#include <unordered_set>
 
 using namespace std;
 
@@ -24,12 +27,46 @@ void CLI_init()
     // Table operations
     commands["create"] = command_t(
                              "create",
-                             "usage: create [table-name] [index-of-primary-key] [number-of-fields] [field-name:field-size,]+",
+                             "usage: create [table-name] [index-of-primary-key] [field-name:field-size,]+",
     [](int argc) {
-        return argc >= 4;
+        return argc >= 3;
     },
-    [](const string &args) {
-        
+    [](const string & args) {
+        stringstream ss(args.substr(string("create ").size()));
+        Table t;
+        t.isDeleted = false;
+        ss >> t.name >> t.pk_index;
+        auto fieldCSV = split(ss.str().substr(ss.tellg()), ',');
+        bool proper = true;
+        unordered_set<string> fNames; // To guarantee that field names are unique
+        for (auto &f : fieldCSV) {
+            cout << "----" << f << endl;
+            auto fpair = split(f,':');
+            string fname = fpair[0];
+            trim(fname);
+            if (fname.empty()) {
+                proper = false;
+                cout << "Field name cannot be empty." << endl;
+                continue;
+            }
+            int fsize = atoi(fpair[1].c_str());
+            if (fsize == 0) {
+                proper = false;
+                cout << "Field size for field '" << fname << "' must be greater than zero." << endl;
+            }
+            if (fNames.count(fname) != 0) { // Field entered multiple times
+                proper = false;
+                cout << "Field named '" << fname << "' has already been entered." << endl;
+            }
+            t.fields.push_back(make_pair(fname, fsize));
+        }
+        if (t.fields.size() <= t.pk_index) {
+            cout << "Primary key index must be less than # of fields.";
+        }
+        if (!proper)
+            cout << "Table is not created due to input errors.";
+        else
+            createTable(t);
     }
                          );
     commands["delete-table"] = command_t(
@@ -38,8 +75,10 @@ void CLI_init()
     [](int argc) {
         return argc == 2;
     },
-    [](const string &args) {
-        cout << "delete table, to be implemented\n";
+    [](const string & args) {
+        auto name = args.substr(string("delete-table ").size());
+        trim(name);
+        deleteTable(name); // Give the params after the word delete as parameter
     }
                                );
     commands["list-tables"] = command_t(
@@ -48,7 +87,7 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    [](const string &args) {
+    [](const string & args) {
         listAllTables();
     }
                               );
@@ -60,7 +99,7 @@ void CLI_init()
     [](int argc) {
         return argc >= 3;
     },
-    [](const string &args) {
+    [](const string & args) {
         cout << "insert record, to be implemented";
     }
                          );
@@ -70,7 +109,7 @@ void CLI_init()
     [](int argc) {
         return argc == 3;
     }, // argc==3 since primary key cannot contain spaces
-    [](const string &args) {
+    [](const string & args) {
         cout << "delete record, to be implemented";
     }
                          );
@@ -80,7 +119,7 @@ void CLI_init()
     [](int argc) {
         return argc >= 3;
     },
-    [](const string &args) {
+    [](const string & args) {
         cout << "update record, to be implemented";
     }
                          );
@@ -90,7 +129,7 @@ void CLI_init()
     [](int argc) {
         return argc == 2;
     },
-    [](const string &args) {
+    [](const string & args) {
         cout << "list all records in a table, to be implemented";
     }
                        );
@@ -100,7 +139,7 @@ void CLI_init()
     [](int argc) {
         return argc == 4; // primary key value cannot contain spaces
     },
-    [](const string &args) {
+    [](const string & args) {
         cout << "search records, to be implemented";
     }
                          );
@@ -112,7 +151,7 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    [](const string &args) {
+    [](const string & args) {
         menu();
     }
                        );
@@ -122,7 +161,7 @@ void CLI_init()
     [](int argc) {
         return argc == 1;
     },
-    [](const string &args) {
+    [](const string & args) {
         exit(EXIT_SUCCESS);
     }
                                        );
@@ -147,12 +186,14 @@ void repl()
             if (cmd.second.argc_check(v.size())) {
                 // Find first space in input line
                 int space;
-                for (space=0; space<input_line.size(); ++space) {
-                    if (input_line[space]==' ') {
+                
+                for (space = 0; space < input_line.size(); ++space) {
+                    if (input_line[space] == ' ') {
                         ++space; // set i to the character after space
                         break;
                     }
                 }
+                
                 string args = input_line.substr(space);
                 cmd.second.callback(input_line);
             }
@@ -173,7 +214,7 @@ void menu()
     cout << "The commands available are:" << endl
          << endl
          << "Table Operations:" << endl
-         << "\tcreate [table-name] [index-of-primary-key] [number-of-fields] [field-name:field-size]+ -- create a table" << endl
+         << "\tcreate [table-name] [index-of-primary-key] [field-name:field-size]+ -- create a table" << endl
          << "\tdelete-table [table-name] -- delete a table" << endl
          << "\tlist-tables -- list all tables" << endl
          << endl
