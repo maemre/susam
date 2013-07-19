@@ -42,8 +42,10 @@ Table parseLine(string s)
     int nOfFields;
     Table t;
     line >> deleted;
+    
     if (! line) // If stream is not readable, we're done
         return t;
+        
     if (deleted == '1') {
         t.isDeleted = true;
         return t;
@@ -52,7 +54,7 @@ Table parseLine(string s)
     line >> t.name; // Table name does not contain spaces, thanks to Goddess
     line >> nOfFields;
     line >> t.pk_index;
-
+    
     // Read fields:
     for (int i = 0; i < nOfFields; i++) {
         pair<string, int> field;
@@ -63,12 +65,13 @@ Table parseLine(string s)
         // read till next comma (field size)
         getline(line, temp, ',');
         field.second = atoi(temp.c_str());
-
+        
         t.fields.push_back(field);
-
+        
         if (! line) // If stream is not readable, we're done
             return t;
     }
+    
     t.isDeleted = false;
     return t;
 }
@@ -77,16 +80,21 @@ void SystemCatalogue::listAllTables()
 {
     string line;
     
+    if (fs.eof()) fs.good();
+    
     // Go to the beginning of the file
     fs.seekg(0, ios::beg);
     
     while (getline(fs, line)) {
         Table t = parseLine(line);
+        
         if (t.isDeleted)
             continue;
+            
         cout << t << endl;
     }
     
+    fs.clear();
     // Go back to where we left off
     fs.seekg(pos_, ios::beg);
 }
@@ -114,6 +122,7 @@ Table SystemCatalogue::findTable(const string &name)
         if (t.name == name && !t.isDeleted)
             return t;
     }
+    
     fs.clear();
     return Table();
 }
@@ -123,32 +132,38 @@ bool SystemCatalogue::deleteTable(const string &name)
     int p = 0;
     Table t;
     int i = 0;
+    
     // Use memory cache
     for (auto & line : linesRead_) {
         t = parseLine(line);
-        p += line.size() + 1;
         
         if (t.name == name && !t.isDeleted) {
-            int pos = fs.tellp();
+            streampos pos = fs.tellp();
             fs.seekp(p, ios::beg);
             fs << '1'; // Set IsDeleted flag to 1 for that table
-            linesRead_[i][0]='1'; // Set that flag also in memory
-            fs.sync();
-            fs.seekp(pos, ios::beg); // go back to where you were
+            linesRead_[i][0] = '1'; // Set that flag also in memory
+            fs.flush();
+            fs.seekp(pos); // go back to where you were
             return true; // success
         }
+        
+        p += line.size() + 1;
         ++i;
     }
     
     // Do disk IO
     string line;
     
+    /*fs.seekp(0, ios::beg);
+    pos_=0;
+    linesRead_.clear();
+    */
     while (getline(fs, line)) {
         t = parseLine(line);
         pos_ += line.size() + 1;
         
         if (t.name == name && !t.isDeleted) {
-            fs.seekp(pos_ - line.size() + 1, ios::beg);
+            fs.seekp(pos_ - line.size() - 1, ios::beg);
             fs << '1'; // Set IsDeleted flag to 1 for that table
             fs.sync();
             fs.seekp(pos_, ios::beg); // go back to where you were
@@ -160,6 +175,7 @@ bool SystemCatalogue::deleteTable(const string &name)
         linesRead_.push_back(line);
     }
     
+    fs.clear();
     // Table not found:
     return false;
 }
@@ -168,21 +184,26 @@ bool SystemCatalogue::createTable(const Table &t)
 {
     stringstream ss;
     string line;
-    Table u=findTable(t.name);
-    if (u.name == t.name) // If there is already a table
+    Table u = findTable(t.name);
+    
+    if (u.name == t.name && !u.isDeleted) // If there is already a table
         return false;
+        
     fs.seekp(0, ios::end);
+    
     if (t.isDeleted) // A deleted table counts as added
         return true;
+        
     char deleted = t.isDeleted ? '1' : '0';
     ss << deleted
-        << t.name << ' '
-        << t.fields.size() << ' '
-        << t.pk_index << ' '; // fix this
-    
+       << t.name << ' '
+       << t.fields.size() << ' '
+       << t.pk_index << ' '; // fix this
+       
     // Write field names and sizes, they're comma seperated values
     for (auto & field : t.fields)
         ss << field.first << ':' << field.second << ',';
+        
     ss << endl;
     line = ss.str();
     fs << line;
