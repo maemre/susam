@@ -39,30 +39,37 @@ void CLI_init()
         auto fieldCSV = split(ss.str().substr(ss.tellg()), ',');
         bool proper = true;
         unordered_set<string> fNames; // To guarantee that field names are unique
-        for (auto &f : fieldCSV) {
-            cout << "----" << f << endl;
-            auto fpair = split(f,':');
+        
+        for (auto & f : fieldCSV) {
+            auto fpair = split(f, ':');
             string fname = fpair[0];
             trim(fname);
+            
             if (fname.empty()) {
                 proper = false;
                 cout << "Field name cannot be empty." << endl;
                 continue;
             }
+            
             int fsize = atoi(fpair[1].c_str());
+            
             if (fsize == 0) {
                 proper = false;
                 cout << "Field size for field '" << fname << "' must be greater than zero." << endl;
             }
+            
             if (fNames.count(fname) != 0) { // Field entered multiple times
                 proper = false;
                 cout << "Field named '" << fname << "' has already been entered." << endl;
             }
+            
             t.fields.push_back(make_pair(fname, fsize));
         }
+        
         if (t.fields.size() <= t.pk_index) {
             cout << "Primary key index must be less than # of fields.";
         }
+        
         if (!proper)
             cout << "Table is not created due to input errors.";
         else
@@ -100,7 +107,18 @@ void CLI_init()
         return argc >= 3;
     },
     [](const string & args) {
-        cout << "insert record, to be implemented";
+        stringstream ss(args);
+        string name;
+        ss >> name >> name; // chop insert
+        vector<string> values;
+        string val;
+        
+        while (getline(ss, val, ',')) {
+            trim(val);
+            values.push_back(val);
+        }
+        
+        insertRecord(name, values);
     }
                          );
     commands["delete"] = command_t(
