@@ -18,4 +18,8 @@ void triml(std::string &str);
 // Trim a string in-place
 void trim(std::string &str);
 
+int bytesToInt(char *bytes, int offset);
+
+void intToBytes(char *bytes, int offset, int n);
+
 #endif

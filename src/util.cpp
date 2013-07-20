@@ -43,11 +43,32 @@ void trimr(string &str)
     size_t endpos = str.find_last_not_of(" \t");
     
     if (string::npos != endpos)
-        str = str.substr(0, endpos+1);
+        str = str.substr(0, endpos + 1);
 }
 
 void trim(string &str)
 {
     trimr(str);
     triml(str);
+}
+
+int bytesToInt(char *bytes, int offset)
+{
+    int r = 0;
+    
+    for (int i = 0; i < 4; i++) {
+        r <<= 8; // shift by one byte
+        r += (unsigned char)bytes[offset + i];
+    }
+    
+    return r;
+}
+
+// TODO: Fix it if necessary
+void intToBytes(char *bytes, int offset, int n)
+{
+    for (int i = 0; i < 4; i++) {
+        bytes[offset + i] = (char)n;
+        n >>= 8; // shift by one byte
+    }
 }
