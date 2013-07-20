@@ -14,7 +14,7 @@
 class Record {
 public:
     std::unordered_map<std::string, std::string> values;
-    const Table table;
+    Table table;
     // constructors:
     
     // Create record with given table, whose values are
@@ -25,6 +25,12 @@ public:
     // Create a record using values from v
     Record(const Table &t, const std::vector<std::string> &v);
     
+    Record(Record &&r);
+    Record(const Record &r);
+
+    Record &operator = (Record &&r);
+    Record &operator = (const Record &r);
+
     // Write the record to a page with some offset
     // Return number of bytes written
     int write(std::array<char, PAGE_SIZE> &page, int offset);

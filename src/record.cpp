@@ -53,6 +53,29 @@ Record::Record(const Table &t, const vector<string> &v)
     }
 }
 
+Record::Record(const Record &r)
+    : values(r.values), table(r.table)
+{
+}
+
+Record::Record(Record &&r)
+    : values(move(r.values)), table(move(r.table))
+{
+}
+
+Record & Record::operator = (Record &&r)
+{
+    values=move(r.values);
+    table=move(r.table);
+    return *this;
+}
+Record & Record::operator = (const Record &r)
+{
+    values=r.values;
+    table=r.table;
+    return *this;
+}
+
 void fill(array<char, PAGE_SIZE> &page, const char c, int begin, int end)
 {
     for (int i = begin; i < end; i++)
