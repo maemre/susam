@@ -165,7 +165,7 @@ bool SystemCatalogue::deleteTable(const string &name)
         if (t.name == name && !t.isDeleted) {
             fs.seekp(pos_ - line.size() - 1, ios::beg);
             fs << '1'; // Set IsDeleted flag to 1 for that table
-            fs.sync();
+            fs.flush();
             fs.seekp(pos_, ios::beg); // go back to where you were
             line[0] = '1'; // Set IsDeleted for that line
             linesRead_.push_back(line);
