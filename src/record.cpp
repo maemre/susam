@@ -34,7 +34,7 @@ Record::Record(const Table &t, const vector<string> &v)
     : table(t)
 {
     if (t.fields.size() != v.size())
-        throw "Record::Record: Size of values mismatch size of fields.";
+        throw runtime_error("Record::Record: Size of values mismatch size of fields.");
         
     string fname;
     int fsize;
@@ -46,7 +46,7 @@ Record::Record(const Table &t, const vector<string> &v)
         if (v[i].size() <= fsize)
             values[fname] = v[i];
         else {
-            throw "Record::Record: Value's size doesn't fit field size";
+            throw runtime_error("Record::Record: Value's size doesn't fit field size");
         }
         
         i++;

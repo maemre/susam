@@ -67,6 +67,30 @@ void listAllTables()
     syscat.listAllTables();
 }
 
+bool check_values(const Table &t, const vector<string> v)
+{
+    if (t.fields.size() != v.size()) {
+        cout << "Incorrect number of values" << endl;
+        return false;
+    }
+    
+    for (char c : v[t.pk_index]) {
+        if (!isdigit(c)) {
+            cout << "Primary key must be an integer" << endl;
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+void read_page(int pageId, array<char, PAGE_SIZE> &page)
+{
+    dataFile.clear();
+    dataFile.seekg(pageId * PAGE_SIZE);
+    dataFile.read(page.data(), PAGE_SIZE);
+}
+
 void insertRecord(const string &name, const vector<string> values)
 {
     Table table = syscat.findTable(name);
@@ -76,22 +100,13 @@ void insertRecord(const string &name, const vector<string> values)
         return;
     }
     
-    if (table.fields.size() != values.size()) {
-        cout << "Incorrect number of values" << endl;
+    if (!check_values(table, values))
         return;
-    }
-    
-    for (char c : values[table.pk_index]) {
-        if (!isdigit(c)) {
-            cout << "Primary key must be an integer" << endl;
-            return;
-        }
-    }
-    
-    Record r(table, values);
+
     dataFile.clear();
     
     try {
+        Record r(table, values);
         Metadata m(table);
         
         array<char, PAGE_SIZE> page;
@@ -100,9 +115,7 @@ void insertRecord(const string &name, const vector<string> values)
         int pageId;
         
         while ((pageId = m.nextPageId()) > -1) {
-            dataFile.clear();
-            dataFile.seekg(pageId * PAGE_SIZE);
-            dataFile.read(page.data(), PAGE_SIZE);
+            read_page(pageId, page);
             DataPage d(page, table);
             
             if (d.state == State::vacant)
@@ -136,25 +149,20 @@ void insertRecord(const string &name, const vector<string> values)
         
         // Write it baby
         dataFile.seekp(vacantPageId);
-        dataFile.clear();
         DataPage d(page, table);
         d.addRecord(r);
         d.write(page);
-        // for (int i=0; i<PAGE_SIZE; ++i)
-        //     printf("%02x ", (int)page[i]);
-        // cout << endl;
         dataFile.write(page.data(), PAGE_SIZE);
         dataFile.flush();
         dataFile.sync();
+        cout << "Record " << r << " inserted successfully to table '" << name << "'." << endl;
     }
     catch (bad_alloc e) {
         cout << "Error: out of memory. Message: " << e.what() << endl;
         return;
     }
     catch (runtime_error e) {
-        cout << "Error: " << e.what();
+        cout << "Error: " << e.what() << endl;
         return;
     }
-    
-    cout << "Record " << r << " inserted successfully to table '" << name << "'." << endl;
 }
