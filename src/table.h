@@ -27,7 +27,7 @@ struct Table {
     
     int recordSize();
     
-    Table &operator = (Table &other);
+    Table &operator = (const Table &other);
     Table &operator = (Table && other);
 };
 

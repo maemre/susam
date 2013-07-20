@@ -79,7 +79,7 @@ ostream &operator << (ostream &os, const Table &t)
     return os;
 }
 
-Table &Table::operator = (Table &other)
+Table &Table::operator = (const Table &other)
 {
     isDeleted = other.isDeleted;
     fields = other.fields;
