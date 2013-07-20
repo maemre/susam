@@ -10,3 +10,7 @@ main
 .ycm*
 # Test files
 src/test-dir/
+# Database files
+data.bin
+syscat.txt
+*.dat
