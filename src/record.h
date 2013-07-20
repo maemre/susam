@@ -27,10 +27,10 @@ public:
     
     Record(Record &&r);
     Record(const Record &r);
-
-    Record &operator = (Record &&r);
+    
+    Record &operator = (Record && r);
     Record &operator = (const Record &r);
-
+    
     // Write the record to a page with some offset
     // Return number of bytes written
     int write(std::array<char, PAGE_SIZE> &page, int offset);

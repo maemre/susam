@@ -128,7 +128,11 @@ void CLI_init()
         return argc == 3;
     }, // argc==3 since primary key cannot contain spaces
     [](const string & args) {
-        cout << "delete record, to be implemented";
+        stringstream ss(args);
+        string name, pk_value;
+        ss >> name >> name; // chop delete
+        ss >> pk_value;
+        deleteRecord(name, pk_value);
     }
                          );
     commands["update"] = command_t(
@@ -138,7 +142,18 @@ void CLI_init()
         return argc >= 3;
     },
     [](const string & args) {
-        cout << "update record, to be implemented";
+        stringstream ss(args);
+        string name;
+        ss >> name >> name; // chop update
+        vector<string> values;
+        string val;
+        
+        while (getline(ss, val, ',')) {
+            trim(val);
+            values.push_back(val);
+        }
+        
+        updateRecord(name, values);
     }
                          );
     commands["list"] = command_t(
@@ -148,17 +163,43 @@ void CLI_init()
         return argc == 2;
     },
     [](const string & args) {
-        cout << "list all records in a table, to be implemented";
+        stringstream ss(args);
+        string name;
+        ss >> name >> name; // chop list
+        listAllRecords(name);
     }
                        );
     commands["search"] = command_t(
                              "search",
-                             "usage: search [table-name] [operation] [primary-key-value]",
+                             "usage: search [table-name] [operator] [primary-key-value]",
     [](int argc) {
         return argc == 4; // primary key value cannot contain spaces
     },
     [](const string & args) {
-        cout << "search records, to be implemented";
+        stringstream ss(args);
+        string name;
+        string op, pk_value;
+        ss >> name >> name >> op >> pk_value;
+        comparator c;
+        
+        if (op == ">")
+            c = [](int a, int b) {
+            return a > b;
+        };
+        else if (op == "=")
+            c = [](int a, int b) {
+            return a == b;
+        };
+        else if (op == "<")
+            c = [](int a, int b) {
+            return a < b;
+        };
+        else {
+            cout << "Please enter a valid comparison operator. The valid ones are: '>','<','='";
+            return;
+        }
+        
+        searchRecords(name, c, pk_value);
     }
                          );
                          

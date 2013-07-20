@@ -63,16 +63,16 @@ Record::Record(Record &&r)
 {
 }
 
-Record & Record::operator = (Record &&r)
+Record &Record::operator = (Record && r)
 {
-    values=move(r.values);
-    table=move(r.table);
+    values = move(r.values);
+    table = move(r.table);
     return *this;
 }
-Record & Record::operator = (const Record &r)
+Record &Record::operator = (const Record &r)
 {
-    values=r.values;
-    table=r.table;
+    values = r.values;
+    table = r.table;
     return *this;
 }
 

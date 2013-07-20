@@ -57,8 +57,7 @@ int bytesToInt(char *bytes, int offset)
     int r = 0;
     
     for (int i = 0; i < 4; i++) {
-        r <<= 8; // shift by one byte
-        r += (unsigned char)bytes[offset + i];
+        r += (unsigned char)bytes[offset + i] << i;
     }
     
     return r;
