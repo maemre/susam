@@ -40,7 +40,7 @@ Table::Table()
 {
 }
 
-Table::Table(Table &other)
+Table::Table(const Table &other)
     : isDeleted(other.isDeleted),
       fields(other.fields),
       name(other.name),
@@ -95,4 +95,14 @@ Table &Table::operator = (Table && other)
     name = move(other.name);
     pk_index = other.pk_index;
     return *this;
+}
+
+int Table::recordSize()
+{
+    int r = 0;
+    
+    for (auto & f : fields)
+        r += f.second;
+        
+    return r;
 }

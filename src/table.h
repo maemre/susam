@@ -21,9 +21,11 @@ struct Table {
     const int &fsize(int index) const;
     const std::string &fname(int index) const;
     // Add move semantics and copy semantics
-    Table(Table &other); // copy
+    Table(const Table &other); // copy
     Table(Table &&other); // move
     Table(); // regular constructor
+    
+    int recordSize();
     
     Table &operator = (Table &other);
     Table &operator = (Table && other);
