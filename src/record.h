@@ -14,16 +14,16 @@
 class Record {
 public:
     std::unordered_map<std::string, std::string> values;
-    const std::shared_ptr<Table> table;
+    const Table table;
     // constructors:
     
     // Create record with given table, whose values are
     // in page, offset with given offset. The offset
     // will be overwritten when construction is done.
-    Record(const std::shared_ptr<Table> &t, const std::array<char, PAGE_SIZE> &page, int &offset);
+    Record(const Table &t, const std::array<char, PAGE_SIZE> &page, int &offset);
     
     // Create a record using values from v
-    Record(const std::shared_ptr<Table> &t, const std::vector<std::string> &v);
+    Record(const Table &t, const std::vector<std::string> &v);
     
     // Write the record to a page with some offset
     // Return number of bytes written

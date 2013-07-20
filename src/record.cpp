@@ -2,23 +2,26 @@
 #include "table.h"
 #include <tuple>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 
-Record::Record(const shared_ptr<Table> &t, const array<char, PAGE_SIZE> &page, int &offset)
+Record::Record(const Table &t, const array<char, PAGE_SIZE> &page, int &offset)
     : values(), table(t)
 {
     string fname;
     int fsize;
     auto it_begin = page.begin() + offset;
     
-    for (const auto & field : table->fields) {
+    for (const auto & field : table.fields) {
         tie(fname, fsize) = field;
         
         string buffer;
         buffer.resize(fsize);
         // Copy necessary amount of data
         copy(it_begin, it_begin + fsize, buffer.begin());
+        // Shrink string by removing extra null characters
+        buffer = buffer.substr(0, strlen(buffer.c_str()));
         // Add newly created value
         values[fname] = buffer;
         
@@ -27,17 +30,17 @@ Record::Record(const shared_ptr<Table> &t, const array<char, PAGE_SIZE> &page, i
     }
 }
 
-Record::Record(const shared_ptr<Table> &t, const vector<string> &v)
+Record::Record(const Table &t, const vector<string> &v)
     : table(t)
 {
-    if (t->fields.size() != v.size())
+    if (t.fields.size() != v.size())
         throw "Record::Record: Size of values mismatch size of fields.";
         
     string fname;
     int fsize;
     int i = 0;
     
-    for (const auto & field : table->fields) {
+    for (const auto & field : table.fields) {
         tie(fname, fsize) = field;
         
         if (v[i].size() <= fsize)
@@ -63,7 +66,7 @@ int Record::write(array<char, PAGE_SIZE> &page, int offset)
     auto it_begin = page.begin() + offset;
     int offset_prev = offset;
     
-    for (const auto & field : table->fields) {
+    for (const auto & field : table.fields) {
         tie(fname, fsize) = field;
         
         copy(values[fname].begin(), values[fname].end(), it_begin);
@@ -78,12 +81,12 @@ int Record::write(array<char, PAGE_SIZE> &page, int offset)
 
 ostream &operator << (ostream &os, const Record &r)
 {
-    string field = r.table->fname(0);
+    string field = r.table.fname(0);
     os << "(" << r.values.at(field);
     
     // Cannot use modern loops, thanks to fencepost problem
-    for (int i = 1; i < r.table->fields.size(); i++) {
-        field = r.table->fname(i);
+    for (int i = 1; i < r.table.fields.size(); i++) {
+        field = r.table.fname(i);
         os << ", " << r.values.at(field);
     }
     
