@@ -44,16 +44,6 @@ syscat.o: syscat.h syscat.cpp table.h util.h
 operations.o: operations.h operations.cpp syscat.h datapage.h metadata.h record.h util.h
 	$(CPP) -c $(CPPFLAGS) operations.cpp
 
-tests: test-dir syscat_test
-	./test-dir/syscat_test
-
-test-dir:
-	mkdir -p test-dir
-
-syscat_test: syscat_test.o table.o syscat.o util.o
-	$(LINKER) $(LFLAGS) syscat_test.o table.o syscat.o util.o -o syscat_test
-	mv metadata_test test-dir/
-
 clean:
 	rm -fr *.o *.dSYM
 
