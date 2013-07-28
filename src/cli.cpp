@@ -36,7 +36,14 @@ void CLI_init()
         Table t;
         t.isDeleted = false;
         ss >> t.name >> t.pk_index;
-        auto fieldCSV = split(ss.str().substr(ss.tellg()), ',');
+        vector<string> fieldCSV;
+        try {
+            fieldCSV = split(ss.str().substr(ss.tellg()), ',');
+        }
+        catch (exception e) {
+            fieldCSV = vector<string>();
+            fieldCSV.push_back(ss.str().substr(ss.tellg()));
+        }
         bool proper = true;
         unordered_set<string> fNames; // To guarantee that field names are unique
         

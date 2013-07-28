@@ -1,4 +1,5 @@
 #include "metadata.h"
+#include <iostream>
 
 using namespace std;
 
@@ -54,6 +55,7 @@ void Metadata::bindNewPage(int pageId)
 // Fill page ID buffer by reading a page of results
 void Metadata::fillBuffer()
 {
+    cout << "Reading page #" << (int)(fs.tellg())/PAGE_SIZE << " of metadata file." << endl;
     fs.read(buffer, PAGE_SIZE);
     int numbersRead = fs.gcount() / 4; // 4 is sizeof(int)
     

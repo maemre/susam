@@ -89,6 +89,7 @@ void read_page(int pageId, array<char, PAGE_SIZE> &page)
     dataFile.clear();
     dataFile.seekg(pageId * PAGE_SIZE);
     dataFile.read(page.data(), PAGE_SIZE);
+    cout << "Reading page #" << pageId << " of data file." << endl;
 }
 
 void write_page(int pageId, const array<char, PAGE_SIZE> &page)
@@ -98,6 +99,7 @@ void write_page(int pageId, const array<char, PAGE_SIZE> &page)
     dataFile.write(page.data(), PAGE_SIZE);
     dataFile.flush();
     dataFile.sync();
+    cout << "Writing to page #" << pageId << " of data file." << endl;
 }
 
 int create_new_page(Metadata &m)
