@@ -1,10 +1,8 @@
 A Storage Manager
 =================
 
-Student Name: Mehmet Emre
-Student ID: 2011400231
-Language used: C++11
-Compiler used: Clang with C++11 extensions and libc++ as standard library
+- Language used: C++11
+- Compiler used: Clang with C++11 extensions and libc++ as standard library
 
 Project for Cmpe 321 course. A simple storage manager that can handle simple table operations with a page by page IO.
 
